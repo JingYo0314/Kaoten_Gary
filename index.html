@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>雲端儀器校正維修病歷系統</title>
+    <title>雲端儀器校正維修管理系統</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -20,60 +20,58 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
-        h2 {
-            color: #2c3e50;
-            font-size: 18px;
-            margin-top: 20px;
-            border-left: 4px solid #3498db;
-            padding-left: 10px;
-        }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 0; }
+        
+        /* 表單區塊樣式 (加入編輯模式切換效果) */
         .form-section {
-            background-color: #f9fbfd;
-            border: 1px solid #e2e8f0;
-            padding: 20px;
-            border-radius: 6px;
-            margin-bottom: 30px;
+            background-color: #f9fbfd; border: 1px solid #e2e8f0; padding: 20px; border-radius: 6px; margin-bottom: 30px;
+            transition: all 0.3s ease;
         }
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
+        .form-section.edit-mode {
+            background-color: #fffbeb; border-color: #fcd34d; box-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
         }
+        #formTitle { color: #2c3e50; font-size: 18px; margin-top: 0; border-left: 4px solid #3498db; padding-left: 10px; }
+        .edit-mode #formTitle { border-left-color: #f59e0b; color: #b45309; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 15px; }
         .form-group { display: flex; flex-direction: column; }
         .form-group label { margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #4a5568; }
-        .form-group input, .form-group select { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; outline: none; }
+        .form-group input, .form-group select { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; outline: none; margin-bottom: 5px; }
         .form-group input:focus, .form-group select:focus { border-color: #3498db; }
+        .custom-input { display: none; background-color: #f1f5f9; } /* 隱藏的自訂輸入框 */
         
-        .search-section {
-            display: flex; align-items: center; margin: 20px 0; gap: 10px;
-            background-color: #edf2f7; padding: 15px; border-radius: 6px;
-        }
+        .search-section { display: flex; align-items: center; margin: 20px 0; gap: 10px; background-color: #edf2f7; padding: 15px; border-radius: 6px; }
         .search-input { flex: 1; padding: 10px 15px; font-size: 15px; border: 1px solid #cbd5e1; border-radius: 4px; outline: none; }
         
-        .btn { padding: 10px 20px; font-size: 14px; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.2s; font-weight: bold; }
+        /* 按鈕樣式 */
+        .btn { padding: 10px 20px; font-size: 14px; border: none; border-radius: 4px; cursor: pointer; transition: 0.2s; font-weight: bold; }
         .btn-primary { background-color: #3498db; color: white; }
         .btn-primary:hover { background-color: #2980b9; }
-        .btn-success { background-color: #2ecc71; color: white; width: 100%; padding: 12px; font-size: 16px; }
-        .btn-success:hover { background-color: #27ae60; }
         .btn-secondary { background-color: #95a5a6; color: white; }
         .btn-secondary:hover { background-color: #7f8c8d; }
-        .btn-danger { background-color: #e74c3c; color: white; padding: 5px 10px; font-size: 12px; }
+        
+        /* 儲存區按鈕組合 */
+        .form-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-submit { background-color: #2ecc71; color: white; flex: 1; padding: 12px; font-size: 16px; }
+        .btn-submit:hover { background-color: #27ae60; }
+        .btn-submit.edit-active { background-color: #f59e0b; }
+        .btn-submit.edit-active:hover { background-color: #d97706; }
+        .btn-cancel { background-color: #64748b; color: white; padding: 12px; font-size: 16px; display: none; }
+        .btn-cancel:hover { background-color: #475569; }
+        
+        /* 表格按鈕 */
+        .btn-sm { padding: 5px 10px; font-size: 12px; margin-right: 4px; }
+        .btn-danger { background-color: #e74c3c; color: white; }
         .btn-danger:hover { background-color: #c0392b; }
+        .btn-edit { background-color: #f39c12; color: white; }
+        .btn-edit:hover { background-color: #d35400; }
 
+        /* 表格與排序 */
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
         th { background-color: #2c3e50; color: white; }
         tr:hover { background-color: #f8fafc; }
-        
-        .sortable { cursor: pointer; user-select: none; transition: background-color 0.2s; }
+        .sortable { cursor: pointer; user-select: none; transition: 0.2s; }
         .sortable:hover { background-color: #34495e; }
         .sort-icon { font-size: 12px; margin-left: 5px; opacity: 0.5; }
         .sort-active { opacity: 1; color: #f1c40f; }
@@ -89,17 +87,14 @@
 <div class="container">
     <h1>🌐 雲端儀器校正維修管理系統</h1>
     
-    <div class="form-section">
-        <h2>➕ 新增維修/校正紀錄</h2>
-        <form id="recordForm" onsubmit="addRecord(event)">
+    <!-- 1. 新增/編輯資料表單 -->
+    <div id="formSection" class="form-section">
+        <h2 id="formTitle">➕ 新增維修/校正紀錄</h2>
+        <form id="recordForm" onsubmit="handleFormSubmit(event)">
             <div class="form-grid">
                 <div class="form-group">
                     <label for="inputDate">日期</label>
                     <input type="date" id="inputDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="inputTime">時間</label>
-                    <input type="time" id="inputTime" required>
                 </div>
                 <div class="form-group">
                     <label for="inputCustomer">客戶名稱</label>
@@ -111,13 +106,30 @@
                 </div>
             </div>
             <div class="form-grid">
+                <!-- 任務選單 -->
                 <div class="form-group" style="grid-column: span 2;">
                     <label for="inputTask">維修/校正項目詳細說明</label>
-                    <input type="text" id="inputTask" placeholder="請輸入處理內容..." required>
+                    <select id="inputTask" onchange="toggleCustomInput('inputTask', 'customTask')" required>
+                        <option value="" disabled selected>請選擇項目...</option>
+                        <option value="校正">1. 校正</option>
+                        <option value="吸到水">2. 吸到水</option>
+                        <option value="更換電池">3. 更換電池</option>
+                        <option value="更換泵浦總成">4. 更換泵浦總成</option>
+                        <option value="更換點火器">5. 更換點火器</option>
+                        <option value="其他">6. 其他 (自行輸入)</option>
+                    </select>
+                    <input type="text" id="customTask" class="custom-input" placeholder="請手動輸入維修/校正項目...">
                 </div>
+                <!-- 工程師選單 -->
                 <div class="form-group">
                     <label for="inputEngineer">處理工程師</label>
-                    <input type="text" id="inputEngineer" placeholder="工程師姓名" required>
+                    <select id="inputEngineer" onchange="toggleCustomInput('inputEngineer', 'customEngineer')" required>
+                        <option value="" disabled selected>請選擇工程師...</option>
+                        <option value="Gary">1. Gary</option>
+                        <option value="Krain">2. Krain</option>
+                        <option value="其他">3. 其他 (自行輸入)</option>
+                    </select>
+                    <input type="text" id="customEngineer" class="custom-input" placeholder="請手動輸入工程師姓名...">
                 </div>
                 <div class="form-group">
                     <label for="inputStatus">案件狀態</label>
@@ -134,21 +146,25 @@
                     <input type="text" id="inputRemarks" placeholder="選填備註事項...">
                 </div>
             </div>
-            <button type="submit" class="btn btn-success">儲存並同步至雲端</button>
+            <div class="form-actions">
+                <button type="submit" id="submitBtn" class="btn btn-submit">儲存並同步至雲端</button>
+                <button type="button" id="cancelEditBtn" class="btn btn-cancel" onclick="resetFormState()">取消編輯</button>
+            </div>
         </form>
     </div>
 
-    <h2>🔍 歷史紀錄查詢與管理</h2>
+    <!-- 2. 搜尋區塊 -->
     <div class="search-section">
         <input type="text" id="searchInput" class="search-input" placeholder="輸入「客戶名稱」或「儀器序號」進行搜尋..." oninput="searchRecords()">
-        <button class="btn btn-primary" onclick="searchRecords()">搜尋</button>
-        <button class="btn btn-secondary" onclick="resetSearch()">清除搜尋 / 顯示全部</button>
+        <button class="btn btn-primary" onclick="searchRecords()">🔍 搜尋</button>
+        <button class="btn btn-secondary" onclick="resetSearch()">清除搜尋</button>
     </div>
 
+    <!-- 3. 資料表格 -->
     <table>
         <thead>
             <tr>
-                <th class="sortable" onclick="handleSort('datetime')">日期與時間 <span id="sort-datetime" class="sort-icon sort-active">⬇️</span></th>
+                <th class="sortable" onclick="handleSort('date')">日期 <span id="sort-date" class="sort-icon sort-active">⬇️</span></th>
                 <th class="sortable" onclick="handleSort('customer')">客戶名稱 <span id="sort-customer" class="sort-icon">↕️</span></th>
                 <th class="sortable" onclick="handleSort('serial')">儀器序號 <span id="sort-serial" class="sort-icon">↕️</span></th>
                 <th>維修/校正項目</th>
@@ -164,11 +180,12 @@
     </table>
 </div>
 
+<!-- 引入 Firebase SDK (新增了 updateDoc 用於編輯更新) -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // 🔴 ⚠️ 請將下方的金鑰內容替換為你在 Firebase 複製的 Config 內容 ⚠️ 🔴
+    // 🔴 ⚠️ 記得將這裡替換成你專屬的 Firebase 金鑰 ⚠️ 🔴
     const firebaseConfig = {
         apiKey: "AIzaSyBccKaB3yjh7anO2KhK2XsPiwnoEDYAss8",
   authDomain: "tva2020.firebaseapp.com",
@@ -178,59 +195,71 @@
   messagingSenderId: "309634484442",
   appId: "1:309634484442:web:d31941cfef811f73a63de3",
   measurementId: "G-ZSCF0Y3N5Z"
-
     };
 
-    // 初始化 Firebase 與 Firestore
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const recordsCol = collection(db, "instrument_records"); // 資料庫集合名稱
+    const recordsCol = collection(db, "instrument_records"); 
 
-    let database = []; // 用於存放從雲端即時抓下來的總資料
+    let database = []; 
+    let currentEditingId = null; // 用來追蹤目前正在編輯哪一筆資料
+
     const tableBody = document.getElementById("recordTableBody");
     const searchInput = document.getElementById("searchInput");
 
-    let currentSortColumn = 'datetime';
+    let currentSortColumn = 'date';
     let isDescending = true;
 
-    // 監聽雲端資料庫（實時同步核心：只要資料庫一變動，這裡就會自動執行）
+    // 實時監聽雲端資料
     onSnapshot(recordsCol, (snapshot) => {
         database = [];
         snapshot.forEach((doc) => {
             database.push({ id: doc.id, ...doc.data() });
         });
-        searchRecords(); // 重新過濾並渲染畫面
+        searchRecords(); 
     }, (error) => {
         console.error("資料讀取失敗: ", error);
         tableBody.innerHTML = `<tr><td colspan="8" class="no-data" style="color:red;">❌ 無法連線至雲端，請檢查設定。</td></tr>`;
     });
 
-    // 自動初始化時間欄位
-    function initFormDateTime() {
+    // 表單初始載入今天日期
+    function initFormDate() {
+        if (currentEditingId) return; // 如果正在編輯，不覆蓋日期
         const now = new Date();
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
         document.getElementById("inputDate").value = `${year}-${month}-${day}`;
-        document.getElementById("inputTime").value = `${hours}:${minutes}`;
     }
 
-    // 處理排序變更
+    // 控制「其他(自行輸入)」的隱藏與顯示
+    function toggleCustomInput(selectId, customInputId) {
+        const selectBox = document.getElementById(selectId);
+        const customInput = document.getElementById(customInputId);
+        if (selectBox.value === "其他") {
+            customInput.style.display = "block";
+            customInput.setAttribute("required", "true"); // 設為必填
+        } else {
+            customInput.style.display = "none";
+            customInput.removeAttribute("required");
+            customInput.value = ""; // 清空殘留文字
+        }
+    }
+
+    // 表格排序邏輯
     function handleSort(column) {
         if (currentSortColumn === column) {
             isDescending = !isDescending;
         } else {
             currentSortColumn = column;
-            isDescending = (column === 'datetime') ? true : false;
+            isDescending = (column === 'date') ? true : false;
         }
         updateSortIcons();
         searchRecords();
     }
 
     function updateSortIcons() {
-        ['datetime', 'customer', 'serial'].forEach(id => {
+        ['date', 'customer', 'serial'].forEach(id => {
             const el = document.getElementById(`sort-${id}`);
             if (id === currentSortColumn) {
                 el.innerText = isDescending ? "⬇️" : "⬆️";
@@ -244,20 +273,15 @@
 
     function applySort(dataArray) {
         return dataArray.sort((a, b) => {
-            let valA, valB;
-            if (currentSortColumn === 'datetime') {
-                valA = new Date(`${a.date}T${a.time}`).getTime();
-                valB = new Date(`${b.date}T${b.time}`).getTime();
-            } else {
-                valA = a[currentSortColumn] || "";
-                valB = b[currentSortColumn] || "";
-            }
+            let valA = a[currentSortColumn] || "";
+            let valB = b[currentSortColumn] || "";
             if (valA < valB) return isDescending ? 1 : -1;
             if (valA > valB) return isDescending ? -1 : 1;
             return 0;
         });
     }
 
+    // 渲染表格內容
     function renderTable(data) {
         tableBody.innerHTML = "";
         if (data.length === 0) {
@@ -268,50 +292,131 @@
         sortedData.forEach(record => {
             const statusClass = record.status.includes("完成") ? "status-done" : "status-wait";
             const row = `<tr>
-                <td>${record.date}<br><span style="color:#7f8c8d; font-size:12px;">${record.time}</span></td>
+                <td><strong>${record.date}</strong></td>
                 <td><strong>${record.customer}</strong></td>
                 <td><code>${record.serial}</code></td>
                 <td>${record.task}</td>
                 <td>${record.engineer}</td>
                 <td><span class="status-badge ${statusClass}">${record.status}</span></td>
                 <td><span style="color:#555; font-size:13px;">${record.remarks || ""}</span></td>
-                <td><button class="btn btn-danger" onclick="deleteRecord('${record.id}')">刪除</button></td>
+                <td>
+                    <button class="btn btn-sm btn-edit" onclick="editRecord('${record.id}')">編輯</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteRecord('${record.id}')">刪除</button>
+                </td>
             </tr>`;
             tableBody.innerHTML += row;
         });
     }
 
-    // 新增紀錄到 Firebase 雲端
-    async function addRecord(event) {
+    // 🌟 點擊表格的「編輯」按鈕觸發
+    function editRecord(id) {
+        const record = database.find(r => r.id === id);
+        if (!record) return;
+
+        currentEditingId = id; // 標記目前正在編輯的 ID
+        
+        // 改變表單外觀與按鈕
+        document.getElementById("formSection").classList.add("edit-mode");
+        document.getElementById("formTitle").innerText = "✏️ 編輯維修/校正紀錄";
+        document.getElementById("submitBtn").innerText = "💾 更新並同步至雲端";
+        document.getElementById("submitBtn").classList.add("edit-active");
+        document.getElementById("cancelEditBtn").style.display = "block";
+
+        // 填入基本資料
+        document.getElementById("inputDate").value = record.date;
+        document.getElementById("inputCustomer").value = record.customer;
+        document.getElementById("inputSerial").value = record.serial;
+        document.getElementById("inputStatus").value = record.status;
+        document.getElementById("inputRemarks").value = record.remarks || "";
+
+        // 處理「任務選單」的邏輯判斷
+        const taskSelect = document.getElementById("inputTask");
+        const customTaskInput = document.getElementById("customTask");
+        const taskOptions = Array.from(taskSelect.options).map(opt => opt.value);
+        if (taskOptions.includes(record.task)) {
+            taskSelect.value = record.task;
+            customTaskInput.style.display = "none";
+        } else {
+            taskSelect.value = "其他";
+            customTaskInput.style.display = "block";
+            customTaskInput.value = record.task; // 把未知的文字塞進自訂欄位
+        }
+
+        // 處理「工程師選單」的邏輯判斷
+        const engSelect = document.getElementById("inputEngineer");
+        const customEngInput = document.getElementById("customEngineer");
+        const engOptions = Array.from(engSelect.options).map(opt => opt.value);
+        if (engOptions.includes(record.engineer)) {
+            engSelect.value = record.engineer;
+            customEngInput.style.display = "none";
+        } else {
+            engSelect.value = "其他";
+            customEngInput.style.display = "block";
+            customEngInput.value = record.engineer;
+        }
+
+        // 視窗平滑滾動到最上方表單處
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 重置表單狀態 (取消編輯 / 儲存完畢後恢復預設)
+    function resetFormState() {
+        currentEditingId = null;
+        document.getElementById("recordForm").reset();
+        
+        document.getElementById("formSection").classList.remove("edit-mode");
+        document.getElementById("formTitle").innerText = "➕ 新增維修/校正紀錄";
+        document.getElementById("submitBtn").innerText = "儲存並同步至雲端";
+        document.getElementById("submitBtn").classList.remove("edit-active");
+        document.getElementById("cancelEditBtn").style.display = "none";
+
+        // 隱藏所有自訂輸入框
+        document.getElementById("customTask").style.display = "none";
+        document.getElementById("customEngineer").style.display = "none";
+
+        initFormDate(); // 重新填入今天日期
+    }
+
+    // 處理表單送出 (包含「新增」與「更新編輯」)
+    async function handleFormSubmit(event) {
         event.preventDefault();
-        const newRecord = {
+
+        // 判斷下拉選單是否選了「其他」，如果是，就抓取自訂輸入框的值
+        let finalTask = document.getElementById("inputTask").value;
+        if (finalTask === "其他") finalTask = document.getElementById("customTask").value.trim();
+
+        let finalEngineer = document.getElementById("inputEngineer").value;
+        if (finalEngineer === "其他") finalEngineer = document.getElementById("customEngineer").value.trim();
+
+        const recordData = {
             date: document.getElementById("inputDate").value,
-            time: document.getElementById("inputTime").value,
             customer: document.getElementById("inputCustomer").value.trim(),
             serial: document.getElementById("inputSerial").value.trim(),
-            task: document.getElementById("inputTask").value.trim(),
-            engineer: document.getElementById("inputEngineer").value.trim(),
+            task: finalTask,
+            engineer: finalEngineer,
             status: document.getElementById("inputStatus").value,
             remarks: document.getElementById("inputRemarks").value.trim()
         };
 
         try {
-            await addDoc(recordsCol, newRecord); // 寫入雲端 Firestore
-            document.getElementById("inputCustomer").value = "";
-            document.getElementById("inputSerial").value = "";
-            document.getElementById("inputTask").value = "";
-            document.getElementById("inputEngineer").value = "";
-            document.getElementById("inputRemarks").value = "";
-            initFormDateTime();
-            alert("🎉 資料已成功同步至雲端！");
+            if (currentEditingId) {
+                // 有 ID 代表是「編輯更新」
+                await updateDoc(doc(db, "instrument_records", currentEditingId), recordData);
+                alert("✅ 紀錄更新成功！");
+            } else {
+                // 沒 ID 代表是「全新新增」
+                await addDoc(recordsCol, recordData); 
+                alert("🎉 資料已成功同步至雲端！");
+            }
+            resetFormState(); // 處理完畢後重置表單
         } catch (e) {
-            alert("❌ 儲存失敗，請檢查網路或 Firebase 權限：" + e);
+            alert("❌ 儲存失敗，請檢查網路狀態：" + e);
         }
     }
 
-    // 從 Firebase 雲端刪除紀錄
+    // 從 Firebase 刪除紀錄
     async function deleteRecord(id) {
-        if (confirm("⚠️ 確定要刪除這筆雲端維修紀錄嗎？確認後其他人的畫面也會同步刪除。")) {
+        if (confirm("⚠️ 確定要刪除這筆紀錄嗎？確認後無法復原。")) {
             try {
                 await deleteDoc(doc(db, "instrument_records", id));
             } catch (e) {
@@ -320,6 +425,7 @@
         }
     }
 
+    // 搜尋功能
     function searchRecords() {
         const keyword = searchInput.value.trim().toLowerCase();
         let displayData = database;
@@ -337,15 +443,18 @@
         searchRecords();
     }
 
-    // 把函式綁定到 window 物件，確保 HTML 中的 onclick 可以順利呼叫到模組內的函式
-    window.addRecord = addRecord;
+    // 綁定全域函式供 HTML onclick 使用
+    window.handleFormSubmit = handleFormSubmit;
     window.deleteRecord = deleteRecord;
+    window.editRecord = editRecord;
+    window.resetFormState = resetFormState;
     window.handleSort = handleSort;
     window.searchRecords = searchRecords;
     window.resetSearch = resetSearch;
+    window.toggleCustomInput = toggleCustomInput;
 
-    // 初始化時間
-    initFormDateTime();
+    // 初始化
+    initFormDate();
 </script>
 </body>
 </html>
