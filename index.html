@@ -20,7 +20,13 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        h1 { text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 0; }
+        
+        /* 標題加上游標變化與過渡效果 */
+        h1 { 
+            text-align: center; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 0; 
+            cursor: pointer; transition: color 0.3s;
+        }
+        h1:hover { color: #3498db; }
         
         /* 表單區塊樣式 (加入編輯模式切換效果) */
         .form-section {
@@ -38,7 +44,7 @@
         .form-group label { margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #4a5568; }
         .form-group input, .form-group select { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; outline: none; margin-bottom: 5px; }
         .form-group input:focus, .form-group select:focus { border-color: #3498db; }
-        .custom-input { display: none; background-color: #f1f5f9; } /* 隱藏的自訂輸入框 */
+        .custom-input { display: none; background-color: #f1f5f9; } 
         
         .search-section { display: flex; align-items: center; margin: 20px 0; gap: 10px; background-color: #edf2f7; padding: 15px; border-radius: 6px; }
         .search-input { flex: 1; padding: 10px 15px; font-size: 15px; border: 1px solid #cbd5e1; border-radius: 4px; outline: none; }
@@ -50,7 +56,6 @@
         .btn-secondary { background-color: #95a5a6; color: white; }
         .btn-secondary:hover { background-color: #7f8c8d; }
         
-        /* 儲存區按鈕組合 */
         .form-actions { display: flex; gap: 10px; margin-top: 10px; }
         .btn-submit { background-color: #2ecc71; color: white; flex: 1; padding: 12px; font-size: 16px; }
         .btn-submit:hover { background-color: #27ae60; }
@@ -60,7 +65,7 @@
         .btn-cancel:hover { background-color: #475569; }
         
         /* 表格按鈕 */
-        .btn-sm { padding: 5px 10px; font-size: 12px; margin-right: 4px; }
+        .btn-sm { padding: 5px 10px; font-size: 12px; margin-right: 4px; margin-bottom: 4px; display: inline-block;}
         .btn-danger { background-color: #e74c3c; color: white; }
         .btn-danger:hover { background-color: #c0392b; }
         .btn-edit { background-color: #f39c12; color: white; }
@@ -77,18 +82,31 @@
         .sort-active { opacity: 1; color: #f1c40f; }
 
         .no-data { text-align: center; padding: 30px; color: #94a3b8; font-size: 16px; }
-        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        
+        /* 修復：強制狀態標籤不換行，確保排版整齊 */
+        .status-badge { 
+            padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;
+            white-space: nowrap; display: inline-block;
+        }
         .status-done { background-color: #def7ec; color: #03543f; }
         .status-wait { background-color: #fef3c7; color: #92400e; }
         
+        /* 分頁按鈕樣式 */
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 20px; }
+        .page-btn { padding: 8px 12px; border: 1px solid #cbd5e1; background-color: #fff; border-radius: 4px; cursor: pointer; color: #333; font-weight: bold; transition: 0.2s; }
+        .page-btn:hover:not(:disabled) { background-color: #f1f5f9; }
+        .page-btn.active { background-color: #3498db; color: white; border-color: #3498db; }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
         /* 底部統計資訊樣式 */
-        .footer-stats { text-align: center; margin-top: 30px; font-size: 13px; color: #7f8c8d; padding-top: 15px; border-top: 1px dashed #cbd5e1; }
+        .footer-stats { text-align: center; margin-top: 20px; font-size: 13px; color: #7f8c8d; padding-top: 15px; border-top: 1px dashed #cbd5e1; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🌐 TVA管理系統</h1>
+    <!-- 點擊標題即可重新載入網頁 (回首頁) -->
+    <h1 onclick="window.location.reload()" title="點擊回到首頁">🌐 TVA管理系統</h1>
     
     <!-- 1. 新增/編輯資料表單 -->
     <div id="formSection" class="form-section">
@@ -101,19 +119,16 @@
                 </div>
                 <div class="form-group">
                     <label for="inputCustomer">客戶名稱</label>
-                    <!-- 加入 list 屬性與 datalist 標籤來實現歷史建議功能 -->
                     <input type="text" id="inputCustomer" placeholder="例如：台積電" list="customerList" required>
                     <datalist id="customerList"></datalist>
                 </div>
                 <div class="form-group">
                     <label for="inputSerial">儀器序號</label>
-                    <!-- 加入 list 屬性與 datalist 標籤來實現歷史建議功能 -->
                     <input type="text" id="inputSerial" placeholder="例如：SN-A1001" list="serialList" required>
                     <datalist id="serialList"></datalist>
                 </div>
             </div>
             <div class="form-grid">
-                <!-- 任務選單 -->
                 <div class="form-group" style="grid-column: span 2;">
                     <label for="inputTask">維修/校正項目詳細說明</label>
                     <select id="inputTask" onchange="toggleCustomInput('inputTask', 'customTask')" required>
@@ -129,7 +144,6 @@
                     </select>
                     <input type="text" id="customTask" class="custom-input" placeholder="請手動輸入維修/校正項目...">
                 </div>
-                <!-- 工程師選單 -->
                 <div class="form-group">
                     <label for="inputEngineer">處理工程師</label>
                     <select id="inputEngineer" onchange="toggleCustomInput('inputEngineer', 'customEngineer')" required>
@@ -180,13 +194,16 @@
                 <th>處理工程師</th>
                 <th>狀態</th>
                 <th>備註</th>
-                <th>操作</th>
+                <th style="min-width: 90px;">操作</th>
             </tr>
         </thead>
         <tbody id="recordTableBody">
             <tr><td colspan="8" class="no-data">☁️ 雲端資料庫連線中...</td></tr>
         </tbody>
     </table>
+
+    <!-- 新增：分頁按鈕區塊 -->
+    <div id="pagination" class="pagination"></div>
 
     <!-- 4. 底部系統統計 -->
     <div id="statsFooter" class="footer-stats">
@@ -216,7 +233,12 @@
     const recordsCol = collection(db, "instrument_records"); 
 
     let database = []; 
+    let currentDisplayData = []; // 用於存放搜尋與排序後的當前資料
     let currentEditingId = null; 
+    
+    // 分頁設定參數
+    let currentPage = 1;
+    const itemsPerPage = 10; 
 
     const tableBody = document.getElementById("recordTableBody");
     const searchInput = document.getElementById("searchInput");
@@ -230,40 +252,35 @@
         snapshot.forEach((doc) => {
             database.push({ id: doc.id, ...doc.data() });
         });
-        searchRecords(); 
-        updateStats(); // 更新底部統計數字
-        updateDatalists(); // 更新輸入框的自動提示選單
+        searchRecords(); // 讀取完畢後直接執行過濾與渲染
+        updateStats(); 
+        updateDatalists(); 
     }, (error) => {
         console.error("資料讀取失敗: ", error);
         tableBody.innerHTML = `<tr><td colspan="8" class="no-data" style="color:red;">❌ 無法連線至雲端，請檢查設定。</td></tr>`;
     });
 
-    // 💡 新增：自動產生客戶名稱與儀器序號的提示清單
+    // 更新自動提示清單
     function updateDatalists() {
         const customerList = document.getElementById("customerList");
         const serialList = document.getElementById("serialList");
-        
-        // 過濾出不重複的歷史紀錄
         const uniqueCustomers = [...new Set(database.map(record => record.customer))].filter(Boolean);
         const uniqueSerials = [...new Set(database.map(record => record.serial))].filter(Boolean);
-        
-        // 將這些歷史紀錄塞入 datalist 當中作為提示選項
         customerList.innerHTML = uniqueCustomers.map(c => `<option value="${c}">`).join("");
         serialList.innerHTML = uniqueSerials.map(s => `<option value="${s}">`).join("");
     }
 
-    // 更新底部統計資訊功能
+    // 更新底部統計
     function updateStats() {
         const uniqueCustomers = new Set(database.map(record => record.customer)).size;
         const uniqueSerials = new Set(database.map(record => record.serial)).size;
-        
         const statsElement = document.getElementById("statsFooter");
         if (statsElement) {
             statsElement.innerText = `目前此系統累積有 ${uniqueCustomers} 間客戶，${uniqueSerials} 台儀器`;
         }
     }
 
-    // 表單初始載入今天日期
+    // 初始化日期
     function initFormDate() {
         if (currentEditingId) return; 
         const now = new Date();
@@ -273,7 +290,7 @@
         document.getElementById("inputDate").value = `${year}-${month}-${day}`;
     }
 
-    // 控制「其他(自行輸入)」的隱藏與顯示
+    // 其他欄位切換
     function toggleCustomInput(selectId, customInputId) {
         const selectBox = document.getElementById(selectId);
         const customInput = document.getElementById(customInputId);
@@ -287,7 +304,7 @@
         }
     }
 
-    // 表格排序邏輯
+    // 排序邏輯
     function handleSort(column) {
         if (currentSortColumn === column) {
             isDescending = !isDescending;
@@ -296,7 +313,11 @@
             isDescending = (column === 'date') ? true : false;
         }
         updateSortIcons();
-        searchRecords();
+        
+        // 排序後切回第一頁並重新渲染
+        currentPage = 1; 
+        currentDisplayData = applySort(currentDisplayData);
+        renderTableAndPagination();
     }
 
     function updateSortIcons() {
@@ -322,15 +343,26 @@
         });
     }
 
-    // 渲染表格內容
-    function renderTable(data) {
+    // 渲染表格與分頁按鈕
+    function renderTableAndPagination() {
         tableBody.innerHTML = "";
-        if (data.length === 0) {
+        
+        if (currentDisplayData.length === 0) {
             tableBody.innerHTML = `<tr><td colspan="8" class="no-data">📭 目前沒有符合條件的紀錄</td></tr>`;
+            document.getElementById("pagination").innerHTML = ""; // 清空分頁
             return;
         }
-        const sortedData = applySort(data);
-        sortedData.forEach(record => {
+
+        // 計算分頁資料
+        const totalPages = Math.ceil(currentDisplayData.length / itemsPerPage);
+        // 如果目前頁數大於總頁數(例如刪除資料時)，自動退回最後一頁
+        if (currentPage > totalPages) currentPage = totalPages; 
+        
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const paginatedData = currentDisplayData.slice(startIndex, startIndex + itemsPerPage);
+
+        // 渲染當前頁面的表格資料
+        paginatedData.forEach(record => {
             const statusClass = record.status.includes("完成") ? "status-done" : "status-wait";
             const row = `<tr>
                 <td><strong>${record.date}</strong></td>
@@ -347,9 +379,57 @@
             </tr>`;
             tableBody.innerHTML += row;
         });
+
+        renderPaginationButtons(totalPages);
     }
 
-    // 點擊表格的「編輯」按鈕觸發
+    // 動態產生分頁按鈕
+    function renderPaginationButtons(totalPages) {
+        const paginationDiv = document.getElementById("pagination");
+        paginationDiv.innerHTML = "";
+
+        if (totalPages <= 1) return; // 只有一頁就不顯示按鈕
+
+        // 上一頁按鈕
+        const prevBtn = document.createElement("button");
+        prevBtn.innerText = "上一頁";
+        prevBtn.className = "page-btn";
+        prevBtn.disabled = (currentPage === 1);
+        prevBtn.onclick = () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTableAndPagination();
+            }
+        };
+        paginationDiv.appendChild(prevBtn);
+
+        // 數字按鈕
+        for (let i = 1; i <= totalPages; i++) {
+            const pageBtn = document.createElement("button");
+            pageBtn.innerText = i;
+            pageBtn.className = (i === currentPage) ? "page-btn active" : "page-btn";
+            pageBtn.onclick = () => {
+                currentPage = i;
+                renderTableAndPagination();
+            };
+            paginationDiv.appendChild(pageBtn);
+        }
+
+        // 下一頁按鈕
+        const nextBtn = document.createElement("button");
+        nextBtn.innerText = "下一頁";
+        nextBtn.className = "page-btn";
+        nextBtn.disabled = (currentPage === totalPages);
+        nextBtn.onclick = () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTableAndPagination();
+            }
+        };
+        paginationDiv.appendChild(nextBtn);
+    }
+
+    // 點擊表格的「編輯」
     function editRecord(id) {
         const record = database.find(r => r.id === id);
         if (!record) return;
@@ -439,6 +519,7 @@
             } else {
                 await addDoc(recordsCol, recordData); 
                 alert("🎉 資料已成功同步至雲端！");
+                currentPage = 1; // 新增資料後回到第一頁
             }
             resetFormState(); 
         } catch (e) {
@@ -460,14 +541,20 @@
     // 搜尋功能
     function searchRecords() {
         const keyword = searchInput.value.trim().toLowerCase();
-        let displayData = database;
+        
         if (keyword !== "") {
-            displayData = database.filter(record => 
+            currentDisplayData = database.filter(record => 
                 (record.customer && record.customer.toLowerCase().includes(keyword)) || 
                 (record.serial && record.serial.toLowerCase().includes(keyword))
             );
+        } else {
+            currentDisplayData = [...database];
         }
-        renderTable(displayData);
+        
+        // 搜尋時套用排序，並且重置到第一頁
+        currentPage = 1;
+        currentDisplayData = applySort(currentDisplayData);
+        renderTableAndPagination();
     }
 
     function resetSearch() {
